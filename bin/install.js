@@ -23,9 +23,16 @@ async function downloadAndUnzip(name, source, dest) {
         const zip = new AdmZip(filename);
         zip.getEntries().forEach((entry) => {
           const { entryName } = entry;
+
           const entrySplit = entryName.split(path.sep);
           entrySplit.shift();
           const revisedPath = path.resolve(dest, path.join(...entrySplit));
+
+          if (entry.isDirectory) {
+            fs.mkdirSync(path.resolve(revisedPath), { recursive: true });
+            return;
+          }
+
           zip.extractEntryTo(entry, path.dirname(revisedPath), false, true);
         });
       })
