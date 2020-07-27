@@ -1,5 +1,5 @@
 {
-  "name": "devctl-plugin-arcanist",
+  "name": "@nicodoggie/devctl-plugin-arcanist",
   "version": "1.0.0",
   "main": "index.js",
   "author": "Nico Suarez <ensu@splitmedialabs.com>",
