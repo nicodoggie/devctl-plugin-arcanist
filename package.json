@@ -9,11 +9,42 @@
     "arc.bat": "arcanist/arcanist/bin/arc.bat"
   },
   "scripts": {
-    "postinstall": "node install.js"
+    "postinstall": "node bin/install.js"
   },
   "dependencies": {
     "adm-zip": "^0.4.16",
     "command-exists": "^1.2.9",
+    "find-up": "^4.1.0",
+    "lodash": "^4.17.19",
     "node-fetch": "^2.6.0"
+  },
+  "devctl-plugin-arcanist": {
+    "aliases": {
+      "pullmaster": [
+        "!bash",
+        "-c",
+        "git checkout master && git pull"
+      ],
+      "review": [
+        "!devctl",
+        "arc:review"
+      ],
+      "accept": [
+        "!devctl",
+        "arc:accept"
+      ],
+      "diffland": [
+        "!devctl",
+        "arc:diffland"
+      ],
+      "yolomerge": [
+        "!devctl",
+        "arc:diffland"
+      ],
+      "patchland": [
+        "!devctl",
+        "arc:patchland"
+      ]
+    }
   }
 }
