@@ -43,10 +43,10 @@ module.exports = async (toolbox) => {
   };
 
   toolbox.config = {
-    ...toolbox.config,
     arcanist: {
       ...(await toolbox.getArcconfig()),
       ...(await toolbox.getArcrc()),
     },
+    ...toolbox.config,
   };
 };
