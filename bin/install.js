@@ -17,7 +17,9 @@ async function downloadAndUnzip(name, source, dest) {
   const filename = path.resolve(rootDir, `${name}.zip`);
   const stream = fs.createWriteStream(filename);
 
-  fetch(source).then((response) => {
+  const response = await fetch(source);
+
+  return new Promise((res, rej) => {
     response.body
       .pipe(stream)
       .on("finish", () => {
@@ -29,7 +31,7 @@ async function downloadAndUnzip(name, source, dest) {
 
           const entrySplit = entryName.split(path.sep);
           entrySplit.shift();
-          const revisedPath = path.resolve(dest, path.join(...entrySplit));
+          const revisedPath = path.join(dest, ...entrySplit);
 
           if (entry.isDirectory) {
             fs.mkdirSync(path.resolve(revisedPath), { recursive: true });
@@ -40,52 +42,61 @@ async function downloadAndUnzip(name, source, dest) {
         });
 
         fs.unlinkSync(filename);
+        res();
       })
       .on("error", (err) => {
-        console.error(err);
+        rej(err);
       });
   });
 }
 
 (async () => {
-  if (!commandExists("devctl")) {
-    console.error(
-      `Please install \`devctl\`. This plugin is useless without it. Run  yarn global add @splitmedialabs/devctl`
+  try {
+    if (!commandExists("devctl")) {
+      console.error(
+        `Please install \`devctl\`. This plugin is useless without it. Run  yarn global add @splitmedialabs/devctl`
+      );
+      process.exit(1);
+    }
+
+    if (!commandExists("php")) {
+      console.error(
+        `Please install the required command 'php' https://www.php.net/manual/en/install.php`
+      );
+      process.exit(2);
+    }
+
+    if (commandExists("arc")) {
+      console.warn(
+        `The "arc" command already exists. Chances are, you will not be using a version installed by this package. Installing anyway...`
+      );
+    } else {
+      console.warn(`Installing arc...`);
+    }
+
+    // Create dir
+    fs.mkdirSync("arcanist", { recursive: true });
+
+    // Download and install libphutil
+    await downloadAndUnzip(
+      "libphutil",
+      libphutilSrc,
+      path.resolve(rootDir, "arcanist/libphutil")
     );
-    process.exit(1);
-  }
-
-  if (!commandExists("php")) {
-    console.error(
-      `Please install the required command 'php' https://www.php.net/manual/en/install.php`
+    await downloadAndUnzip(
+      "arcanist",
+      arcanistSrc,
+      path.resolve(rootDir, "arcanist/arcanist")
     );
-    process.exit(2);
-  }
 
-  if (commandExists("arc")) {
-    console.warn(
-      `The "arc" command already exists. Chances are, you will not be using a version installed by this package. Installing anyway`
-    );
-  }
+    console.log("Installation complete");
 
-  // Create dir
-  fs.mkdirSync("arcanist", { recursive: true });
+    const { aliases } = packageJson["devctl-plugin-arcanist"];
 
-  // Download and install libphutil
-  await downloadAndUnzip(
-    "libphutil",
-    libphutilSrc,
-    path.resolve(rootDir, "arcanist/libphutil")
-  );
-  await downloadAndUnzip(
-    "arcanist",
-    arcanistSrc,
-    path.resolve(rootDir, "arcanist/arcanist")
-  );
-
-  const { aliases } = packageJson["devctl-plugin-arcanist"];
-
-  for (const [alias, command] of Object.entries(aliases)) {
-    execSync(`arc alias -- ${alias} "${command.join(" ")}"`);
+    for (const [alias, command] of Object.entries(aliases)) {
+      execSync(`arc alias -- ${alias} "${command.join(" ")}"`);
+    }
+  } catch (e) {
+    console.error(e);
   }
 })();
