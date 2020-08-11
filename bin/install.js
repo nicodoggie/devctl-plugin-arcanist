@@ -52,28 +52,33 @@ async function downloadAndUnzip(name, source, dest) {
 
 (async () => {
   try {
-    if (!commandExists("devctl")) {
-      console.error(
-        `Please install \`devctl\`. This plugin is useless without it. Run  yarn global add @splitmedialabs/devctl`
-      );
-      process.exit(1);
-    }
+    await commandExists("devctl");
+  } catch {
+    console.error(
+      `Please install \`devctl\`. This plugin is useless without it. Run  yarn global add @splitmedialabs/devctl`
+    );
+    process.exit(1);
+  }
 
-    if (!commandExists("php")) {
-      console.error(
-        `Please install the required command 'php' https://www.php.net/manual/en/install.php`
-      );
-      process.exit(2);
-    }
+  try {
+    await commandExists("php");
+  } catch {
+    console.error(
+      `Please install the required command 'php' https://www.php.net/manual/en/install.php`
+    );
+    process.exit(2);
+  }
 
-    if (commandExists("arc")) {
-      console.warn(
-        `The "arc" command already exists. Chances are, you will not be using a version installed by this package. Installing anyway...`
-      );
-    } else {
-      console.warn(`Installing arc...`);
-    }
+  try {
+    await commandExists("arc");
+    console.warn(
+      `The "arc" command already exists. Chances are, you will not be using a version installed by this package. Installing anyway...`
+    );
+  } catch {
+    console.warn(`Installing arc...`);
+  }
 
+  try {
     // Create dir
     fs.mkdirSync("arcanist", { recursive: true });
 
@@ -88,6 +93,8 @@ async function downloadAndUnzip(name, source, dest) {
       arcanistSrc,
       path.resolve(rootDir, "arcanist/arcanist")
     );
+
+    fs.chmodSync(path.resolve(rootDir, "arcanist/arcanist/arc"), "0755");
 
     console.log("Installation complete");
 
