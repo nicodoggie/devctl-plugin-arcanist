@@ -4,9 +4,10 @@
   "main": "index.js",
   "author": "Nico Suarez <ensu@splitmedialabs.com>",
   "license": "MIT",
+  "preferGlobal": true,
   "bin": {
-    "arc": "arcanist/arcanist/bin/arc",
-    "arc.bat": "arcanist/arcanist/bin/arc.bat"
+    "arc": "./arcanist/arcanist/bin/arc",
+    "arc.bat": "./arcanist/arcanist/bin/arc.bat"
   },
   "scripts": {
     "postinstall": "node bin/install.js"
