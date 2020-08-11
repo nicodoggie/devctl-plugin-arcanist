@@ -79,9 +79,6 @@ async function downloadAndUnzip(name, source, dest) {
   }
 
   try {
-    yieldy;
-    yhy;
-
     // Create dir
     fs.mkdirSync("arcanist", { recursive: true });
 
