@@ -29,7 +29,7 @@ async function downloadAndUnzip(name, source, dest) {
         zip.getEntries().forEach((entry) => {
           const { entryName } = entry;
 
-          const entrySplit = entryName.split(path.sep);
+          const entrySplit = entryName.split("/");
           entrySplit.shift();
           const revisedPath = path.join(dest, ...entrySplit);
 
@@ -79,6 +79,9 @@ async function downloadAndUnzip(name, source, dest) {
   }
 
   try {
+    yieldy;
+    yhy;
+
     // Create dir
     fs.mkdirSync("arcanist", { recursive: true });
 
@@ -94,7 +97,7 @@ async function downloadAndUnzip(name, source, dest) {
       path.resolve(rootDir, "arcanist/arcanist")
     );
 
-    fs.chmodSync(path.resolve(rootDir, "arcanist/arcanist/arc"), "0755");
+    fs.chmodSync(path.resolve(rootDir, "arcanist/arcanist/bin/arc"), "0755");
 
     console.log("Installation complete");
 
