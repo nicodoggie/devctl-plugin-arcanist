@@ -1,5 +1,6 @@
 const path = require("path");
 const fs = require("fs");
+const os = require("os");
 const { execSync } = require("child_process");
 
 const packageJson = require("../package.json");
@@ -12,6 +13,27 @@ const libphutilSrc = "https://github.com/phacility/libphutil/zipball/stable";
 const arcanistSrc = "https://github.com/phacility/arcanist/zipball/stable";
 
 const rootDir = path.dirname(__dirname);
+const globalBin = execSync("yarn global bin");
+
+async function linkWindows() {
+  const globalArc = resolve(globalBin, "arc.bat");
+  if (!test("-L", globalArc)) {
+    console.log(`--- installing arc globally`);
+
+    const sourceArc = path.resolve(
+      rootDir,
+      "arcanist",
+      "scripts",
+      "arcanist.php"
+    );
+
+    if (!test("-e", globalArc)) {
+      const cmd = `@echo off
+      php -f "${sourceArc}" -- %*`;
+      fs.writeFileSync(globalArc, cmd);
+    }
+  }
+}
 
 async function downloadAndUnzip(name, source, dest) {
   const filename = path.resolve(rootDir, `${name}.zip`);
@@ -95,6 +117,10 @@ async function downloadAndUnzip(name, source, dest) {
     );
 
     fs.chmodSync(path.resolve(rootDir, "arcanist/arcanist/bin/arc"), "0755");
+
+    if (os.platform() === "win32") {
+      linkWindows();
+    }
 
     console.log("Installation complete");
 
